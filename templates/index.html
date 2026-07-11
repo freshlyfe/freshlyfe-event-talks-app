@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A premium tracker for BigQuery release notes and updates, with Twitter sharing capabilities.">
+    <title>BigQuery Release Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar or Header Area -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-database animate-pulse"></i>
+                </div>
+                <div>
+                    <h1>BigQuery</h1>
+                    <span class="subtitle">Release Hub</span>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-badge" id="stat-features">
+                    <span class="stat-count">0</span>
+                    <span class="stat-label">Features</span>
+                </div>
+                <div class="stat-badge" id="stat-deprecations">
+                    <span class="stat-count">0</span>
+                    <span class="stat-label">Deprecations</span>
+                </div>
+                <div class="stat-badge" id="stat-fixes">
+                    <span class="stat-count">0</span>
+                    <span class="stat-label">Fixes</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button id="btn-refresh" class="btn btn-primary" title="Refresh Release Notes">
+                    <span class="spinner-icon"><i class="fa-solid fa-rotate"></i></span>
+                    <span class="btn-text">Refresh Feed</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="app-main">
+            <!-- Controls bar -->
+            <div class="controls-bar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search updates (e.g., vector search, catalog)...">
+                    <button id="btn-clear-search" class="btn-clear-search" style="display: none;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All Updates</button>
+                    <button class="filter-tab" data-filter="feature">Features</button>
+                    <button class="filter-tab" data-filter="deprecation">Deprecations</button>
+                    <button class="filter-tab" data-filter="bug fix">Bug Fixes</button>
+                    <button class="filter-tab" data-filter="other">Others</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-viewport">
+                <!-- Loader -->
+                <div id="feed-loader" class="feed-loader-container">
+                    <div class="premium-loader">
+                        <div class="double-ring"></div>
+                        <i class="fa-solid fa-database inner-db-icon"></i>
+                    </div>
+                    <p>Fetching BigQuery updates...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-state" class="error-state-container" style="display: none;">
+                    <div class="error-illustration">
+                        <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+                    </div>
+                    <h2>Unable to retrieve updates</h2>
+                    <p id="error-message">Something went wrong while connecting to the feed.</p>
+                    <button id="btn-retry" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrows-rotate"></i> Retry Connection
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state-container" style="display: none;">
+                    <div class="empty-illustration">
+                        <i class="fa-regular fa-folder-open"></i>
+                    </div>
+                    <h2>No updates match your search</h2>
+                    <p>Try adjusting your keywords or category filters.</p>
+                    <button id="btn-clear-filters" class="btn btn-secondary">Clear Search</button>
+                </div>
+
+                <!-- Feed Container -->
+                <div id="feed-container" class="feed-cards-grid" style="display: none;">
+                    <!-- Cards will be dynamically injected here -->
+                </div>
+            </div>
+        </main>
+        
+        <!-- Premium Floating Tweet Drawer -->
+        <div id="tweet-drawer" class="tweet-drawer">
+            <div class="drawer-handle"></div>
+            <div class="drawer-header">
+                <h3><i class="fa-brands fa-x-twitter"></i> Compose Update Tweet</h3>
+                <button id="btn-close-drawer" class="btn-close-drawer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="drawer-body">
+                <div class="selected-context">
+                    <div class="context-type" id="drawer-type-badge">Feature</div>
+                    <div class="context-date" id="drawer-date">July 09, 2026</div>
+                </div>
+                
+                <div class="tweet-editor-container">
+                    <textarea id="tweet-textarea" placeholder="What's happening?"></textarea>
+                    <div class="editor-footer">
+                        <span class="char-counter" id="tweet-char-counter">280</span>
+                        <button id="btn-generate-ai" class="btn btn-text-action" title="Regenerate tweet template">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest Layout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="drawer-actions">
+                    <button id="btn-copy-tweet" class="btn btn-secondary">
+                        <i class="fa-solid fa-copy"></i> <span id="copy-btn-text">Copy Text</span>
+                    </button>
+                    <button id="btn-send-tweet" class="btn btn-twitter-primary">
+                        <i class="fa-brands fa-x-twitter"></i> Post to X
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Backdrop for Drawer on mobile / Desktop overlay focus -->
+        <div id="drawer-backdrop" class="drawer-backdrop"></div>
+    </div>
+
+    <!-- App Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
