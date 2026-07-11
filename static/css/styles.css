@@ -838,3 +838,45 @@ body {
         border-radius: 16px 16px 0 0;
     }
 }
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Card Actions and Copy Button */
+.card-actions-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-card-copy {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    font-size: 13px;
+    padding: 0;
+}
+
+.btn-card-copy:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+.btn-card-copy.copied {
+    border-color: var(--color-feature);
+    color: var(--color-feature);
+    background: var(--bg-feature);
+}
+

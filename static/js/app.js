@@ -7,6 +7,7 @@ let tweetFormatIndex = 0;
 
 // DOM Elements
 const elRefreshBtn = document.getElementById('btn-refresh');
+const elExportCsvBtn = document.getElementById('btn-export-csv');
 const elSearchInput = document.getElementById('search-input');
 const elClearSearchBtn = document.getElementById('btn-clear-search');
 const elFilterTabs = document.querySelectorAll('.filter-tab');
@@ -222,17 +223,40 @@ function renderFeed() {
                 updateItem.innerHTML = `
                     <div class="update-item-header">
                         <span class="badge ${badgeClass}">${update.type}</span>
-                        <span class="card-tweet-indicator">
-                            <i class="fa-brands fa-x-twitter"></i> Click to Tweet
-                        </span>
+                        <div class="card-actions-wrapper">
+                            <button class="btn-card-copy" title="Copy plain text to clipboard">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                            <span class="card-tweet-indicator">
+                                <i class="fa-brands fa-x-twitter"></i> Click to Tweet
+                            </span>
+                        </div>
                     </div>
                     <div class="update-body">${update.content}</div>
                 `;
                 
+                // Add click listener for card copy button
+                const copyBtn = updateItem.querySelector('.btn-card-copy');
+                copyBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // Prevent opening the tweet drawer
+                    const plainText = cleanHtmlForTweet(update.content);
+                    try {
+                        await navigator.clipboard.writeText(plainText);
+                        copyBtn.classList.add('copied');
+                        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                        setTimeout(() => {
+                            copyBtn.classList.remove('copied');
+                            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy card content: ', err);
+                    }
+                });
+
                 // Click to select and compose tweet
                 updateItem.addEventListener('click', (e) => {
-                    // Prevent drawer open if user is clicking on external links in card
-                    if (e.target.tagName === 'A') return;
+                    // Prevent drawer open if user is clicking on links or copy buttons in card
+                    if (e.target.tagName === 'A' || e.target.closest('.btn-card-copy')) return;
                     
                     selectUpdate(update, entry, updateItem);
                 });
@@ -420,6 +444,64 @@ elGenerateAiBtn.addEventListener('click', () => {
     elTweetTextarea.value = draftTweet;
     updateCharCounter();
 });
+
+// Export Filtered Release Notes to CSV
+function exportFilteredToCSV() {
+    if (releaseNotesData.length === 0) {
+        alert("No release notes loaded to export.");
+        return;
+    }
+
+    const headers = ["Date", "Type", "Update Description", "Source Link"];
+    const csvRows = [headers.map(h => `"${h.replace(/"/g, '""')}"`).join(",")];
+
+    releaseNotesData.forEach(entry => {
+        entry.updates.forEach(update => {
+            const matchesFilter = currentFilter === 'all' || 
+                (currentFilter === 'other' && !['feature', 'deprecation', 'bug fix'].includes(update.type.toLowerCase())) ||
+                update.type.toLowerCase() === currentFilter;
+                
+            const cleanText = cleanHtmlForTweet(update.content).toLowerCase();
+            const matchesSearch = currentSearch === '' || 
+                cleanText.includes(currentSearch.toLowerCase()) || 
+                update.type.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                entry.date.toLowerCase().includes(currentSearch.toLowerCase());
+                
+            if (matchesFilter && matchesSearch) {
+                const plainText = cleanHtmlForTweet(update.content);
+                const row = [
+                    entry.date,
+                    update.type,
+                    plainText,
+                    entry.link
+                ];
+                csvRows.push(row.map(field => `"${field.replace(/"/g, '""')}"`).join(","));
+            }
+        });
+    });
+
+    if (csvRows.length <= 1) {
+        alert("No filtered updates match the current view to export.");
+        return;
+    }
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    const dateStamp = new Date().toISOString().split('T')[0];
+    link.setAttribute("download", `bigquery_release_notes_${dateStamp}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Bind Export Event
+if (elExportCsvBtn) {
+    elExportCsvBtn.addEventListener('click', exportFilteredToCSV);
+}
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', fetchReleaseNotes);
