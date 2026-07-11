@@ -8,6 +8,7 @@ let tweetFormatIndex = 0;
 // DOM Elements
 const elRefreshBtn = document.getElementById('btn-refresh');
 const elExportCsvBtn = document.getElementById('btn-export-csv');
+const elThemeToggleBtn = document.getElementById('btn-theme-toggle');
 const elSearchInput = document.getElementById('search-input');
 const elClearSearchBtn = document.getElementById('btn-clear-search');
 const elFilterTabs = document.querySelectorAll('.filter-tab');
@@ -503,5 +504,39 @@ if (elExportCsvBtn) {
     elExportCsvBtn.addEventListener('click', exportFilteredToCSV);
 }
 
+// Theme Toggle Logic
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+}
+
+function setTheme(theme) {
+    if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        if (elThemeToggleBtn) {
+            elThemeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            elThemeToggleBtn.title = 'Switch to Dark Mode';
+        }
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+        if (elThemeToggleBtn) {
+            elThemeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            elThemeToggleBtn.title = 'Switch to Light Mode';
+        }
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+if (elThemeToggleBtn) {
+    elThemeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        setTheme(currentTheme === 'light' ? 'dark' : 'light');
+    });
+}
+
 // Initial Load
-document.addEventListener('DOMContentLoaded', fetchReleaseNotes);
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    fetchReleaseNotes();
+});

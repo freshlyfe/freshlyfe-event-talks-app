@@ -50,6 +50,43 @@
     --card-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 
+:root[data-theme="light"] {
+    --bg-primary: hsl(220, 20%, 97%);
+    --bg-secondary: hsl(220, 20%, 93%);
+    --bg-tertiary: hsl(220, 18%, 88%);
+    --bg-glass: rgba(255, 255, 255, 0.7);
+    --border-color: rgba(220, 20%, 25%, 0.15);
+    --border-glowing: hsla(210, 100%, 50%, 0.3);
+    
+    --text-primary: hsl(220, 25%, 12%);
+    --text-secondary: hsl(220, 15%, 32%);
+    --text-muted: hsl(220, 12%, 50%);
+    
+    --twitter-black: hsl(0, 0%, 10%);
+    --twitter-border: hsl(0, 0%, 80%);
+    --twitter-text: hsl(0, 0%, 98%);
+    
+    --color-feature: hsl(150, 80%, 26%);
+    --bg-feature: hsla(150, 80%, 30%, 0.08);
+    --border-feature: hsla(150, 80%, 30%, 0.2);
+
+    --color-deprecation: hsl(35, 100%, 36%);
+    --bg-deprecation: hsla(35, 100%, 40%, 0.08);
+    --border-deprecation: hsla(35, 100%, 40%, 0.2);
+
+    --color-fix: hsl(275, 80%, 45%);
+    --bg-fix: hsla(275, 80%, 45%, 0.08);
+    --border-fix: hsla(275, 80%, 45%, 0.2);
+
+    --color-other: hsl(195, 90%, 32%);
+    --bg-other: hsla(195, 90%, 35%, 0.08);
+    --border-other: hsla(195, 90%, 35%, 0.2);
+    
+    --glow-shadow: 0 0 20px rgba(59, 130, 246, 0.05);
+    --card-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+
 /* Base Styles */
 * {
     box-sizing: border-box;
